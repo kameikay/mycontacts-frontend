@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useErrors } from '../../hooks/useErrors';
+import formatPhone from '../../utils/formatPhone';
 
 import isEmailValid from '../../utils/isEmailValid';
 
@@ -19,7 +20,11 @@ export function ContactForm({ buttonLabel }:IContactForm) {
   const [phone, setPhone] = useState<string>('');
   const [category, setCategory] = useState<string>('');
 
-  const { setError, getErrorMessageByFieldName, removeError } = useErrors();
+  const {
+    setError, getErrorMessageByFieldName, removeError, errors,
+  } = useErrors();
+
+  const isFormValid = (name && errors.length === 0);
 
   function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);
@@ -44,6 +49,10 @@ export function ContactForm({ buttonLabel }:IContactForm) {
     }
   }
 
+  function handlePhoneChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setPhone(formatPhone(event.target.value));
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -56,7 +65,7 @@ export function ContactForm({ buttonLabel }:IContactForm) {
   }
 
   return (
-    <Form onSubmit={(event) => handleSubmit(event)}>
+    <Form onSubmit={(event) => handleSubmit(event)} noValidate>
       <FormGroup error={getErrorMessageByFieldName('name')}>
         <Input
           placeholder="Nome"
@@ -71,14 +80,15 @@ export function ContactForm({ buttonLabel }:IContactForm) {
           value={email}
           onChange={(event) => handleEmailChange(event)}
           error={!!getErrorMessageByFieldName('email')}
+          type="email"
         />
       </FormGroup>
       <FormGroup>
         <Input
           placeholder="Telefone"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-
+          onChange={(event) => handlePhoneChange(event)}
+          maxLength={15}
         />
       </FormGroup>
       <FormGroup>
@@ -92,7 +102,7 @@ export function ContactForm({ buttonLabel }:IContactForm) {
         </Select>
       </FormGroup>
 
-      <Button type="submit">
+      <Button type="submit" disabled={!isFormValid}>
         {buttonLabel}
       </Button>
     </Form>
