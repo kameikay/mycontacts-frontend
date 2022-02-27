@@ -1,6 +1,10 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-export const Input = styled.input`
+interface IInputProps {
+  error?: boolean | undefined;
+}
+
+export const Input = styled.input<IInputProps>`
     width: 100%;
     padding: 0 1rem;
     border-radius: .5rem;
@@ -23,4 +27,9 @@ export const Input = styled.input`
     & + & {
       margin-top: .5rem;
     }
+
+    ${({ theme, error }) => error && css`
+      color: ${theme.colors.danger.main};
+      border-color: ${theme.colors.danger.main} !important;
+    `}
 `;

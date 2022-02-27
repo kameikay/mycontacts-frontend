@@ -1,29 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useErrors } from '../../hooks/useErrors';
+
+import isEmailValid from '../../utils/isEmailValid';
+
 import { Button } from '../Button';
 import { FormGroup } from '../FormGroup';
 import { Input } from '../Input';
 import { Select } from '../Select';
+
 import { Form } from './styles';
 
 interface IContactForm {
   buttonLabel: string;
 }
-
 export function ContactForm({ buttonLabel }:IContactForm) {
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
+
+  const { setError, getErrorMessageByFieldName, removeError } = useErrors();
+
+  function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setName(event.target.value);
+
+    if (!event.target.value) {
+      setError({ field: 'name', message: 'Nome é obrigatório' });
+    } else {
+      removeError('name');
+    }
+  }
+
+  function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setEmail(event.target.value);
+
+    if (event.target.value && !isEmailValid(event.target.value)) {
+      setError({
+        field: 'email',
+        message: 'E-mail inválido',
+      });
+    } else {
+      removeError('email');
+    }
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    console.log({
+      name,
+      email,
+      phone,
+      category,
+    });
+  }
+
   return (
-    <Form>
-      <FormGroup>
-        <Input placeholder="Nome" />
+    <Form onSubmit={(event) => handleSubmit(event)}>
+      <FormGroup error={getErrorMessageByFieldName('name')}>
+        <Input
+          placeholder="Nome"
+          value={name}
+          onChange={(event) => handleNameChange(event)}
+          error={!!getErrorMessageByFieldName('name')}
+        />
+      </FormGroup>
+      <FormGroup error={getErrorMessageByFieldName('email')}>
+        <Input
+          placeholder="E-mail"
+          value={email}
+          onChange={(event) => handleEmailChange(event)}
+          error={!!getErrorMessageByFieldName('email')}
+        />
       </FormGroup>
       <FormGroup>
-        <Input placeholder="E-mail" />
+        <Input
+          placeholder="Telefone"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+
+        />
       </FormGroup>
       <FormGroup>
-        <Input placeholder="Telefone" />
-      </FormGroup>
-      <FormGroup>
-        <Select>
+        <Select
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+        >
+          <option value="">Categoria</option>
           <option value="instagram">Instagram</option>
+          <option value="discord">Discord</option>
         </Select>
       </FormGroup>
 
