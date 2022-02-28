@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Card,
@@ -11,6 +11,8 @@ import {
 import arrow from '../../assets/images/icons/arrow.svg';
 import edit from '../../assets/images/icons/edit.svg';
 import trash from '../../assets/images/icons/trash.svg';
+
+import Loader from '../../components/Loader';
 
 interface IContacts {
   id: string;
@@ -25,13 +27,15 @@ export default function Home() {
   const [contacts, setContacts] = useState<IContacts[]>([]);
   const [orderBy, setOrderBy] = useState<string>('asc');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const filteredContacts = contacts.filter(
+  const filteredContacts = useMemo(() => contacts.filter(
     (contact: IContacts) => contact.name.toLowerCase()
       .includes(searchTerm.toLowerCase()),
-  );
+  ), [contacts, searchTerm]);
 
   useEffect(() => {
+    setIsLoading(true);
     fetch(`http://localhost:3333/contacts?orderBy=${orderBy}`, {
       method: 'GET',
     })
@@ -39,7 +43,11 @@ export default function Home() {
         const json = await response.json();
         setContacts(json);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      }).finally(() => {
+        setIsLoading(false);
+      });
   }, [orderBy]);
 
   function handleToggleOrderBy() {
@@ -52,6 +60,7 @@ export default function Home() {
 
   return (
     <Container>
+      {isLoading && <Loader />}
       <InputSearchContainer>
         <input
           type="text"
