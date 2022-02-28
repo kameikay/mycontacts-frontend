@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useErrors } from '../../hooks/useErrors';
-import formatPhone from '../../utils/formatPhone';
 
+import { useErrors } from '../../hooks/useErrors';
+
+import formatPhone from '../../utils/formatPhone';
 import isEmailValid from '../../utils/isEmailValid';
 
 import { Button } from '../Button';
@@ -68,7 +69,7 @@ export function ContactForm({ buttonLabel }:IContactForm) {
     <Form onSubmit={(event) => handleSubmit(event)} noValidate>
       <FormGroup error={getErrorMessageByFieldName('name')}>
         <Input
-          placeholder="Nome"
+          placeholder="Nome *"
           value={name}
           onChange={(event) => handleNameChange(event)}
           error={!!getErrorMessageByFieldName('name')}

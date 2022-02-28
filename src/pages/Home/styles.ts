@@ -48,10 +48,13 @@ export const Header = styled.header`
   }
 `;
 
-export const ListContainer = styled.div`
+interface IListHeader {
+  orderBy: string;
+}
+
+export const ListHeader = styled.header<IListHeader>`
   margin-top: 1.5rem;
 
-  header {
     margin-bottom: .5rem;
 
     button {
@@ -63,9 +66,13 @@ export const ListContainer = styled.div`
     span {
       margin-right: .5rem;
       font-weight: bold;
-    color: ${({ theme }) => theme.colors.primary.main};
+      color: ${({ theme }) => theme.colors.primary.main};
     }
-  }
+
+    img {
+      transition: all .2s ease-in-out;
+      transform: ${({ orderBy }) => (orderBy === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)')}
+    }
   }
 `;
 
