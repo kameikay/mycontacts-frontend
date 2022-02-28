@@ -13,6 +13,7 @@ import edit from '../../assets/images/icons/edit.svg';
 import trash from '../../assets/images/icons/trash.svg';
 
 import Loader from '../../components/Loader';
+import ContactsService from '../../services/ContactsService';
 
 interface IContacts {
   id: string;
@@ -29,25 +30,30 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const filteredContacts = useMemo(() => contacts.filter(
-    (contact: IContacts) => contact.name.toLowerCase()
-      .includes(searchTerm.toLowerCase()),
-  ), [contacts, searchTerm]);
+  const filteredContacts = useMemo(
+    () => contacts.filter(
+      (contact: IContacts) => contact.name.toLowerCase()
+        .includes(searchTerm.toLowerCase()),
+    ),
+    [contacts, searchTerm],
+  );
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch(`http://localhost:3333/contacts?orderBy=${orderBy}`, {
-      method: 'GET',
-    })
-      .then(async (response) => {
-        const json = await response.json();
-        setContacts(json);
-      })
-      .catch((err) => {
-        console.log(err);
-      }).finally(() => {
+    async function loadContacts() {
+      try {
+        setIsLoading(true);
+
+        const contactsList = await ContactsService.listContacts(orderBy);
+
+        setContacts(contactsList);
+      } catch (error) {
+        console.log(error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    }
+
+    loadContacts();
   }, [orderBy]);
 
   function handleToggleOrderBy() {
@@ -81,12 +87,12 @@ export default function Home() {
       </Header>
 
       {filteredContacts.length > 0 && (
-      <ListHeader orderBy={orderBy}>
-        <button type="button" onClick={handleToggleOrderBy}>
-          <span>Nome</span>
-          <img src={arrow} alt="Arrow" />
-        </button>
-      </ListHeader>
+        <ListHeader orderBy={orderBy}>
+          <button type="button" onClick={handleToggleOrderBy}>
+            <span>Nome</span>
+            <img src={arrow} alt="Arrow" />
+          </button>
+        </ListHeader>
       )}
 
       {filteredContacts.map((contact) => (
