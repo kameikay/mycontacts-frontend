@@ -10,6 +10,7 @@ import {
   Header,
   InputSearchContainer,
   ListHeader,
+  SerachNotFoundContainer,
 } from './styles';
 
 import arrow from '../../assets/images/icons/arrow.svg';
@@ -17,6 +18,7 @@ import edit from '../../assets/images/icons/edit.svg';
 import trash from '../../assets/images/icons/trash.svg';
 import sad from '../../assets/images/icons/sad.svg';
 import emptyBox from '../../assets/images/icons/empty-box.svg';
+import magnifierQuestion from '../../assets/images/icons/question.svg';
 
 import Loader from '../../components/Loader';
 import ContactsService from '../../services/ContactsService';
@@ -39,7 +41,11 @@ export default function Home() {
   const [hasError, setHasError] = useState<boolean>(false);
 
   const filteredContacts = useMemo(
-    () => contacts.filter((contact: IContacts) => contact.name.toLowerCase().includes(searchTerm.toLowerCase())),
+    () => contacts.filter(
+      (contact: IContacts) => contact.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
+    ),
     [contacts, searchTerm],
   );
 
@@ -49,8 +55,7 @@ export default function Home() {
       const contactsList = await ContactsService.listContacts(orderBy);
 
       setHasError(false);
-      // setContacts(contactsList);
-      setContacts([]);
+      setContacts(contactsList);
     } catch (error) {
       setHasError(true);
     } finally {
@@ -138,6 +143,18 @@ export default function Home() {
               </p>
             </EmptyListContainer>
           )}
+
+            {(contacts.length > 0 && filteredContacts.length < 1) && (
+            <SerachNotFoundContainer>
+              <img src={magnifierQuestion} alt="Magnifier question" />
+              <p>
+                Nenhum contato encontrado para
+                {' '}
+                <strong>{searchTerm}</strong>
+              </p>
+            </SerachNotFoundContainer>
+            )}
+
           {filteredContacts.length > 0 && (
             <ListHeader orderBy={orderBy}>
               <button type="button" onClick={handleToggleOrderBy}>

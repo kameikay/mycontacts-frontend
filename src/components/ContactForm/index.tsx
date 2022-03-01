@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useErrors } from '../../hooks/useErrors';
+import CategoriesService from '../../services/CategoriesService';
 
 import formatPhone from '../../utils/formatPhone';
 import isEmailValid from '../../utils/isEmailValid';
@@ -15,17 +16,38 @@ import { Form } from './styles';
 interface IContactForm {
   buttonLabel: string;
 }
+
+interface ICategory {
+  id: string;
+  name: string;
+}
+
 export function ContactForm({ buttonLabel }:IContactForm) {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-  const [category, setCategory] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(true);
 
   const {
     setError, getErrorMessageByFieldName, removeError, errors,
   } = useErrors();
 
   const isFormValid = (name && errors.length === 0);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const categoriesList = await CategoriesService.listCategories();
+        setCategories(categoriesList);
+      } catch {} finally {
+        setIsLoadingCategories(false);
+      }
+    }
+
+    loadCategories();
+  }, []);
 
   function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);
@@ -56,13 +78,6 @@ export function ContactForm({ buttonLabel }:IContactForm) {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    console.log({
-      name,
-      email,
-      phone,
-      category,
-    });
   }
 
   return (
@@ -75,6 +90,7 @@ export function ContactForm({ buttonLabel }:IContactForm) {
           error={!!getErrorMessageByFieldName('name')}
         />
       </FormGroup>
+
       <FormGroup error={getErrorMessageByFieldName('email')}>
         <Input
           placeholder="E-mail"
@@ -84,6 +100,7 @@ export function ContactForm({ buttonLabel }:IContactForm) {
           type="email"
         />
       </FormGroup>
+
       <FormGroup>
         <Input
           placeholder="Telefone"
@@ -92,14 +109,17 @@ export function ContactForm({ buttonLabel }:IContactForm) {
           maxLength={15}
         />
       </FormGroup>
-      <FormGroup>
+
+      <FormGroup isLoading={isLoadingCategories}>
         <Select
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
+          value={categoryId}
+          onChange={(event) => setCategoryId(event.target.value)}
+          disabled={isLoadingCategories}
         >
-          <option value="">Categoria</option>
-          <option value="instagram">Instagram</option>
-          <option value="discord">Discord</option>
+          <option value="">Sem categoria</option>
+          {categories.map((category: ICategory) => (
+            <option value={category.id} key={category.id}>{category.name}</option>
+          ))}
         </Select>
       </FormGroup>
 

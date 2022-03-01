@@ -4,12 +4,17 @@ import { Container } from './styles';
 interface IFormGroup {
   children: ReactNode;
   error?: string;
+  isLoading?: boolean;
 }
 
-export function FormGroup({ children, error }: IFormGroup) {
+export function FormGroup({ children, error, isLoading }: IFormGroup) {
   return (
     <Container>
-      { children }
+      <div className="form-item">
+        { children }
+
+        {isLoading && <div className="loader" />}
+      </div>
       {error && <small>{error}</small>}
     </Container>
   );
@@ -17,4 +22,5 @@ export function FormGroup({ children, error }: IFormGroup) {
 
 FormGroup.defaultProps = {
   error: null,
+  isLoading: false,
 };

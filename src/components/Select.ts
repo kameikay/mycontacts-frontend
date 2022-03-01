@@ -21,6 +21,11 @@ export const Select = styled.select`
       border: 2px solid ${({ theme }) => theme.colors.primary.main};
     }
 
+    &[disabled] {
+      background: ${({ theme }) => theme.colors.gray[100]};
+      border-color: ${({ theme }) => theme.colors.gray[200]};
+    }
+
     & + & {
       margin-top: .5rem;
     }
