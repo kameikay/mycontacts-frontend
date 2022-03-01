@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { Spinner } from '../Spinner';
 import { Container } from './styles';
 
 interface IFormGroup {
@@ -13,7 +14,11 @@ export function FormGroup({ children, error, isLoading }: IFormGroup) {
       <div className="form-item">
         { children }
 
-        {isLoading && <div className="loader" />}
+        {isLoading && (
+          <div className="loader">
+            <Spinner size={16} />
+          </div>
+        )}
       </div>
       {error && <small>{error}</small>}
     </Container>
