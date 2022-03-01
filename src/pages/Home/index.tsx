@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Card,
   Container,
+  ErrorContainer,
   Header,
   InputSearchContainer,
   ListHeader,
@@ -11,9 +12,11 @@ import {
 import arrow from '../../assets/images/icons/arrow.svg';
 import edit from '../../assets/images/icons/edit.svg';
 import trash from '../../assets/images/icons/trash.svg';
+import sad from '../../assets/images/icons/sad.svg';
 
 import Loader from '../../components/Loader';
 import ContactsService from '../../services/ContactsService';
+import { Button } from '../../components/Button';
 
 interface IContacts {
   id: string;
@@ -29,6 +32,7 @@ export default function Home() {
   const [orderBy, setOrderBy] = useState<string>('asc');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hasError, setHasError] = useState<boolean>(false);
 
   const filteredContacts = useMemo(
     () => contacts.filter(
@@ -38,21 +42,21 @@ export default function Home() {
     [contacts, searchTerm],
   );
 
-  useEffect(() => {
-    async function loadContacts() {
-      try {
-        setIsLoading(true);
+  async function loadContacts() {
+    try {
+      setIsLoading(true);
+      const contactsList = await ContactsService.listContacts(orderBy);
 
-        const contactsList = await ContactsService.listContacts(orderBy);
-
-        setContacts(contactsList);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
+      setHasError(false);
+      setContacts(contactsList);
+    } catch (error) {
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
     }
+  }
 
+  useEffect(() => {
     loadContacts();
   }, [orderBy]);
 
@@ -62,6 +66,10 @@ export default function Home() {
 
   function handleSearchTerm(event: React.ChangeEvent<HTMLInputElement>) {
     setSearchTerm(event.target.value);
+  }
+
+  function handleTryAgain() {
+    loadContacts();
   }
 
   return (
@@ -76,15 +84,31 @@ export default function Home() {
         />
       </InputSearchContainer>
 
-      <Header>
+      <Header hasError={hasError}>
+        {!hasError && (
         <strong>
           {filteredContacts.length}
           {' '}
           {filteredContacts.length === 1 ? 'contato' : 'contatos'}
         </strong>
+        )}
 
         <Link to="/new">Novo contato</Link>
       </Header>
+
+      {hasError && (
+      <ErrorContainer>
+        <img src={sad} alt="Sad" />
+
+        <div className="details">
+          <strong>Ocorreu um erro ao obter seus contatos!</strong>
+
+          <Button type="button" onClick={handleTryAgain}>
+            Tentar novamente
+          </Button>
+        </div>
+      </ErrorContainer>
+      )}
 
       {filteredContacts.length > 0 && (
         <ListHeader orderBy={orderBy}>
