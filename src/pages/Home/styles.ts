@@ -148,7 +148,7 @@ export const ErrorContainer = styled.div`
       font-size: 1.125rem;
       color: ${({ theme }) => theme.colors.danger.main};
       display: inline-block;
-      margin-bottom: .5rem;
+      margin-bottom: 1rem;
     }
   }
 

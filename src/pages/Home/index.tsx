@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import {
   Card,
@@ -42,7 +44,7 @@ export default function Home() {
     [contacts, searchTerm],
   );
 
-  async function loadContacts() {
+  const loadContacts = useCallback(async () => {
     try {
       setIsLoading(true);
       const contactsList = await ContactsService.listContacts(orderBy);
@@ -54,11 +56,11 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [orderBy]);
 
   useEffect(() => {
     loadContacts();
-  }, [orderBy]);
+  }, [loadContacts]);
 
   function handleToggleOrderBy() {
     setOrderBy((prevState) => (prevState === 'asc' ? 'desc' : 'asc'));
@@ -103,45 +105,50 @@ export default function Home() {
         <div className="details">
           <strong>Ocorreu um erro ao obter seus contatos!</strong>
 
-          <Button type="button" onClick={handleTryAgain}>
+          <Button type="button" onClick={() => handleTryAgain()}>
             Tentar novamente
           </Button>
         </div>
       </ErrorContainer>
       )}
 
-      {filteredContacts.length > 0 && (
+      {!hasError
+      && (
+      <>
+        {filteredContacts.length > 0 && (
         <ListHeader orderBy={orderBy}>
           <button type="button" onClick={handleToggleOrderBy}>
             <span>Nome</span>
             <img src={arrow} alt="Arrow" />
           </button>
         </ListHeader>
-      )}
+        )}
 
-      {filteredContacts.map((contact) => (
-        <Card key={contact.id}>
-          <div className="info">
-            <div className="contact-name">
-              <strong>{contact.name}</strong>
-              {contact.category_name && <small>{contact.category_name}</small>}
+        {filteredContacts.map((contact) => (
+          <Card key={contact.id}>
+            <div className="info">
+              <div className="contact-name">
+                <strong>{contact.name}</strong>
+                {contact.category_name && <small>{contact.category_name}</small>}
+              </div>
+
+              <span>{contact.email}</span>
+              <span>{contact.phone}</span>
             </div>
 
-            <span>{contact.email}</span>
-            <span>{contact.phone}</span>
-          </div>
+            <div className="actions">
+              <Link to={`/edit/${contact.id}`}>
+                <img src={edit} alt="Edit" />
+              </Link>
 
-          <div className="actions">
-            <Link to={`/edit/${contact.id}`}>
-              <img src={edit} alt="Edit" />
-            </Link>
-
-            <button type="button">
-              <img src={trash} alt="Trash" />
-            </button>
-          </div>
-        </Card>
-      ))}
+              <button type="button">
+                <img src={trash} alt="Trash" />
+              </button>
+            </div>
+          </Card>
+        ))}
+      </>
+      )}
     </Container>
   );
 }
