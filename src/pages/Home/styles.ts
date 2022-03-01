@@ -23,13 +23,13 @@ export const InputSearchContainer = styled.div`
 `;
 
 interface IHeader {
-  hasError: boolean;
+  justifyContent: string;
 }
 
 export const Header = styled.header<IHeader>`
   display: flex;
   align-items: center;
-  justify-content: ${({ hasError }) => (hasError ? 'flex-end' : 'space-between')};
+  justify-content: ${({ justifyContent }) => justifyContent};
   margin-top: 2rem;
   border-bottom: 2px solid ${({ theme }) => theme.colors.gray[100]};
   padding-bottom: 1rem;
@@ -152,4 +152,22 @@ export const ErrorContainer = styled.div`
     }
   }
 
+`;
+
+export const EmptyListContainer = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    color: ${({ theme }) => theme.colors.gray[200]};
+    text-align: center;
+    margin-top: .5rem;
+
+    strong {
+      color: ${({ theme }) => theme.colors.primary.main};
+    }
+  }
 `;
